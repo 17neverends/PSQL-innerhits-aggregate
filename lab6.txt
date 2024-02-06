@@ -1,0 +1,45 @@
+CREATE TABLE my_object(
+  id serial,
+  time_create TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  time_dead TIMESTAMP DEFAULT NULL,
+  PRIMARY KEY (id, time_create)
+);
+
+CREATE TABLE mini_object1 (
+  name varchar(17),
+  UNIQUE(id)
+) INHERITS (my_object);
+
+
+
+
+
+
+CREATE OR REPLACE FUNCTION update_time_create()
+RETURNS TRIGGER AS $$BEGIN
+  IF EXISTS (SELECT 1 FROM my_object WHERE id = NEW.id) THEN 
+  UPDATE my_object SET time_create = CURRENT_TIMESTAMP WHERE id = NEW.id;
+    RETURN NULL;
+  ELSE
+    RETURN NEW;
+  END IF;
+END;$$ LANGUAGE plpgsql;
+
+
+CREATE TRIGGER update_time_create_trigger
+BEFORE INSERT ON mini_object1
+FOR EACH ROW
+EXECUTE FUNCTION update_time_create();
+
+INSERT INTO mini_object1 (id, name) VALUES
+(1, 'name 1'),
+(2, 'name 2'),
+(1, 'name 1');  
+
+
+
+SELECT * FROM my_object;
+SELECT * FROM mini_object1;
+
+
+
