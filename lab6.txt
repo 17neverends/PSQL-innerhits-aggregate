@@ -6,9 +6,13 @@ CREATE TABLE my_object(
 );
 
 CREATE TABLE mini_object1 (
-  name varchar(17),
-  UNIQUE(id)
+  name varchar(17)
 ) INHERITS (my_object);
+
+CREATE TABLE mini_object2 (
+  name varchar(17)
+) INHERITS (my_object);
+
 
 
 
@@ -31,15 +35,30 @@ BEFORE INSERT ON mini_object1
 FOR EACH ROW
 EXECUTE FUNCTION update_time_create();
 
+CREATE TRIGGER update_time_create_trigger
+BEFORE INSERT ON mini_object2
+FOR EACH ROW
+EXECUTE FUNCTION update_time_create();
+
 INSERT INTO mini_object1 (id, name) VALUES
 (1, 'name 1'),
-(2, 'name 2'),
-(1, 'name 1');  
+(2, 'name 2');
+
+INSERT INTO mini_object1 (id, name) VALUES
+(1, 'name 1');
+
+INSERT INTO mini_object1 (id, name) VALUES
+(3, 'name 3');
+
+INSERT INTO mini_object2 (id, name) VALUES
+(1, 'name 1'),
+(2, 'name 2');
+
+
 
 
 
 SELECT * FROM my_object;
-SELECT * FROM mini_object1;
 
 
 
