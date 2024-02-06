@@ -4,7 +4,6 @@ CREATE TABLE my_object(
   time_dead TIMESTAMP DEFAULT NULL,
   PRIMARY KEY (id, time_create)
 );
-
 CREATE TABLE mini_object1 (
   name varchar(17)
 ) INHERITS (my_object);
@@ -13,11 +12,25 @@ CREATE TABLE mini_object2 (
   name varchar(17)
 ) INHERITS (my_object);
 
+CREATE TABLE mini_object3 (
+  name varchar(17)
+) INHERITS (my_object);
 
+SELECT column_name, data_type
+FROM information_schema.columns
+WHERE table_name = 'mini_object3';
 
+SELECT column_name, data_type
+FROM information_schema.columns
+WHERE table_name = 'my_object';
 
+SELECT constraint_name, constraint_type
+FROM information_schema.table_constraints
+WHERE table_name = 'mini_object3';
 
-
+SELECT constraint_name, constraint_type
+FROM information_schema.table_constraints
+WHERE table_name = 'my_object';
 
 CREATE OR REPLACE FUNCTION update_time_create()
 RETURNS TRIGGER AS $$BEGIN
@@ -28,36 +41,37 @@ RETURNS TRIGGER AS $$BEGIN
     RETURN NEW;
   END IF;
 END;$$ LANGUAGE plpgsql;
-
-
 CREATE TRIGGER update_time_create_trigger
 BEFORE INSERT ON mini_object1
 FOR EACH ROW
 EXECUTE FUNCTION update_time_create();
-
 CREATE TRIGGER update_time_create_trigger
 BEFORE INSERT ON mini_object2
 FOR EACH ROW
 EXECUTE FUNCTION update_time_create();
-
+CREATE TRIGGER update_time_create_trigger
+BEFORE INSERT ON mini_object3
+FOR EACH ROW
+EXECUTE FUNCTION update_time_create();
+CREATE TRIGGER update_time_create_trigger
+BEFORE INSERT ON my_object
+FOR EACH ROW
+EXECUTE FUNCTION update_time_create();
 INSERT INTO mini_object1 (id, name) VALUES
 (1, 'name 1'),
 (2, 'name 2');
-
 INSERT INTO mini_object1 (id, name) VALUES
 (1, 'name 1');
-
 INSERT INTO mini_object1 (id, name) VALUES
 (3, 'name 3');
-
 INSERT INTO mini_object2 (id, name) VALUES
 (1, 'name 1'),
 (2, 'name 2');
+INSERT INTO mini_object3 (id, name) VALUES
+(2, 'name 2');
 
-
-
-
-
+INSERT INTO my_object (id) VALUES
+(1);
 SELECT * FROM my_object;
 
 
