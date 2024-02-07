@@ -90,16 +90,19 @@ INSERT INTO mini_object3 (id, name) VALUES
 
 SELECT * FROM my_object ORDER BY 1;
 
-CREATE FUNCTION avg_id(numeric, numeric)
+CREATE FUNCTION array_avg(numeric[])
 RETURNS numeric AS
 $$
-SELECT ($1 + $2) / 2.0;
+SELECT AVG(x) FROM UNNEST($1) AS t(x);
 $$ LANGUAGE SQL IMMUTABLE STRICT;
 
 CREATE AGGREGATE self_avg(numeric) (
-    SFUNC = avg_id,
-    STYPE = numeric
+    SFUNC = array_append,
+    STYPE = numeric[],
+    FINALFUNC = array_avg,
+    INITCOND = '{}'
 );
+
 
 
 
